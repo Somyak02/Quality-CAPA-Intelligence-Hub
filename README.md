@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Quality CAPA Review Dashboard
 
 A local Streamlit application for triaging quality incident tickets, retrieving relevant quality SOP excerpts, drafting CAPA recommendations, and recording human review decisions.
@@ -149,3 +150,7 @@ Refresh the application after retrieval changes. The current implementation excl
 - `quality_workflow.py` owns data loading, retrieval, triage, CAPA drafting, metrics, status persistence, and the LangGraph workflow.
 - The application writes status changes to the source CSV, so keep a backup if the data is important.
 - Do not commit model caches, virtual environments, or production ticket data to source control.
+=======
+# Quality-CAPA-Intelligence-Hub
+A local Streamlit application for triaging quality incident tickets, retrieving relevant quality SOP excerpts, drafting CAPA recommendations, and recording human review decisions.
+>>>>>>> c4187c506f264721bd54d84483a780d993dc8ca0
