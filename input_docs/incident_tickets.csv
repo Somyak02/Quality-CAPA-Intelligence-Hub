@@ -1,0 +1,41 @@
+ticket_id,date,product_line,category,description,true_severity,true_category
+INC-1001,2026-01-05,DRAM,Contamination,"Particle contamination detected on 12 wafers during post-etch inspection in Fab 3 cleanroom. Yield drop of 8% observed on affected lots.",High,Contamination
+INC-1002,2026-01-06,NAND,Equipment,"Calibration drift found on Metrology Tool M-22 during routine check; measurements were off by 0.3 microns for the past 5 days.",Medium,Equipment Calibration
+INC-1003,2026-01-07,SSD Assembly,Documentation,"Work instruction WI-045 was found to be an outdated revision on the assembly line floor, missing the latest torque spec update.",Low,Documentation Error
+INC-1004,2026-01-08,DRAM,Process Deviation,"Operator skipped a bake step during moisture sensitivity handling for Lot #4521, resulting in failed MSL test.",High,Process Deviation
+INC-1005,2026-01-09,Wafer Fab,Supplier,"Incoming silicon wafers from Supplier B showed surface defects exceeding acceptance criteria in 3 of 10 sampled lots.",Medium,Supplier Quality
+INC-1006,2026-01-10,NAND,Testing,"Final test station reported inconsistent pass/fail results for the same units when re-tested within 1 hour.",High,Testing Failure
+INC-1007,2026-01-11,Packaging,Packaging Defect,"Moisture barrier bags for SSD units found to have seal integrity failures in a batch of 200 units.",Medium,Packaging Defect
+INC-1008,2026-01-12,DRAM,Non-Conformance,"Non-conforming material tag missing on quarantined lot #7788, risking accidental release to next process step.",High,Non-Conforming Material
+INC-1009,2026-01-13,Wafer Fab,Equipment,"Furnace temperature excursion recorded 4C above spec for 15 minutes during anneal process on Line 2.",High,Equipment Calibration
+INC-1010,2026-01-14,NAND,Contamination,"Trace metal contamination found on wafer surface post-CMP, source traced to slurry batch #221.",High,Contamination
+INC-1011,2026-01-15,SSD Assembly,Documentation,"Change order for firmware version 3.2 was not reflected in the traveler document used on the floor.",Low,Documentation Error
+INC-1012,2026-01-16,DRAM,Process Deviation,"Operator used incorrect recipe parameters on photolithography step for Lot #4599, causing overlay misalignment.",Medium,Process Deviation
+INC-1013,2026-01-17,Wafer Fab,Supplier,"Supplier certificate of analysis for chemical batch did not match actual concentration values upon internal verification.",Medium,Supplier Quality
+INC-1014,2026-01-18,NAND,Testing,"Burn-in test chamber #4 showed temperature non-uniformity greater than 5C across the tray.",Medium,Testing Failure
+INC-1015,2026-01-19,Packaging,Packaging Defect,"Labeling error found on 150 finished goods units; incorrect lot number printed on outer carton.",Low,Packaging Defect
+INC-1016,2026-01-20,DRAM,Non-Conformance,"Customer return analysis revealed units shipped with known non-conforming die that should have been scrapped.",High,Non-Conforming Material
+INC-1017,2026-01-21,Wafer Fab,Equipment,"Ion implanter dose monitor failed calibration check, flagged during preventive maintenance.",Medium,Equipment Calibration
+INC-1018,2026-01-22,NAND,Contamination,"Airborne particle count exceeded cleanroom class limit in Bay 7 for 2 hours due to HVAC filter fault.",High,Contamination
+INC-1019,2026-01-23,SSD Assembly,Process Deviation,"Assembly technician bypassed ESD wrist strap check station, potentially exposing units to electrostatic damage.",Medium,Process Deviation
+INC-1020,2026-01-24,DRAM,Documentation,"Deviation approval for temporary process change was not signed by the required quality approver before implementation.",Medium,Documentation Error
+INC-1021,2026-01-25,Wafer Fab,Supplier,"Supplier quality audit found missing calibration records for critical measurement equipment used on our parts.",Medium,Supplier Quality
+INC-1022,2026-01-26,NAND,Testing,"Functional test yield dropped 6% overnight on Line B with no process changes logged.",High,Testing Failure
+INC-1023,2026-01-27,Packaging,Packaging Defect,"Anti-static packaging material found to be out of spec resistance range in incoming inspection.",Medium,Packaging Defect
+INC-1024,2026-01-28,DRAM,Non-Conformance,"In-process inspection found die cracking on 4 wafers not flagged by automated optical inspection system.",High,Non-Conforming Material
+INC-1025,2026-01-29,Wafer Fab,Equipment,"Preventive maintenance on CVD chamber was overdue by 3 weeks, exceeding the maintenance interval defined in SOP.",Low,Equipment Calibration
+INC-1026,2026-01-30,NAND,Contamination,"Foreign material found embedded in wafer surface during final visual inspection, source unknown.",Medium,Contamination
+INC-1027,2026-01-31,SSD Assembly,Documentation,"Training record for new operator on ESD handling procedure could not be located during internal audit.",Low,Documentation Error
+INC-1028,2026-02-01,DRAM,Process Deviation,"Reflow oven profile deviated from approved recipe due to unauthorized parameter change by shift operator.",High,Process Deviation
+INC-1029,2026-02-02,Wafer Fab,Supplier,"Supplier delivered chemical batch past its expiration date, discovered during incoming QC check.",Medium,Supplier Quality
+INC-1030,2026-02-03,NAND,Testing,"Test escape identified after customer field return showed a defect not caught during final test.",High,Testing Failure
+INC-1031,2026-02-04,Packaging,Packaging Defect,"Carton drop test failure observed for new packaging design during routine qualification testing.",Low,Packaging Defect
+INC-1032,2026-02-05,DRAM,Non-Conformance,"Lot disposition record shows conflicting status between MES system and physical hold tag on material.",Medium,Non-Conforming Material
+INC-1033,2026-02-06,Wafer Fab,Equipment,"Wet bench chemical concentration sensor gave inconsistent readings across three consecutive shifts.",Medium,Equipment Calibration
+INC-1034,2026-02-07,NAND,Contamination,"Cross-contamination suspected between two product lines sharing the same handling tray without proper cleaning.",High,Contamination
+INC-1035,2026-02-08,SSD Assembly,Process Deviation,"Solder paste inspection step was skipped for an entire shift due to equipment downtime, units released without check.",High,Process Deviation
+INC-1036,2026-02-09,DRAM,Documentation,"Revision history for quality manual section 4.2 shows a gap with no record of the last approved change.",Low,Documentation Error
+INC-1037,2026-02-10,Wafer Fab,Supplier,"New supplier onboarding skipped the required quality system assessment prior to first shipment.",Medium,Supplier Quality
+INC-1038,2026-02-11,NAND,Testing,"Test program version mismatch found between two test stations running supposedly identical test flows.",Medium,Testing Failure
+INC-1039,2026-02-12,Packaging,Packaging Defect,"ESD shielding bag material changed by packaging vendor without notifying quality team for requalification.",Medium,Packaging Defect
+INC-1040,2026-02-13,DRAM,Non-Conformance,"Scrap material was found improperly stored with production inventory instead of quarantine area.",Medium,Non-Conforming Material
