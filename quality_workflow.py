@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import time
+from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -18,6 +19,8 @@ from typing_extensions import TypedDict
 ROOT_DIR = Path(__file__).resolve().parent
 DOCS_DIR = ROOT_DIR / "input_docs" / "quality_agent_project_data" / "quality_sops"
 TICKETS_PATH = ROOT_DIR / "input_docs" / "quality_agent_project_data" / "incident_tickets.csv"
+LEGACY_TICKETS_PATH = ROOT_DIR / "input_docs" / "incident_tickets.csv"
+TICKETS_EXCEL_PATH = ROOT_DIR / "input_docs" / "quality_agent_project_data" / "incident_tickets.xlsx"
 ALLOWED_SEVERITIES = {"High", "Medium", "Low"}
 ALLOWED_CATEGORIES = {
     "Contamination",
@@ -82,6 +85,7 @@ class QualityWorkflow:
     def __init__(self, docs_dir: Path = DOCS_DIR, tickets_path: Path = TICKETS_PATH):
         self.docs_dir = docs_dir
         self.tickets_path = tickets_path
+        self.excel_persistence_available = True
         self.ticket_df = pd.read_csv(tickets_path)
         self.ticket_df = self._ensure_ticket_status_column()
         self._triage_cache: Dict[Tuple[str, str], Dict[str, str]] = {}
@@ -98,8 +102,46 @@ class QualityWorkflow:
         df["status"] = df["status"].astype("object")
         df["status"] = df["status"].where(pd.notna(df["status"]), None)
         if "status" in df.columns:
-            df.to_csv(self.tickets_path, index=False)
+            self._persist_ticket_data(df)
         return df
+
+    def _persist_ticket_data(self, df: pd.DataFrame) -> None:
+        df.to_csv(self.tickets_path, index=False)
+        if self.tickets_path != LEGACY_TICKETS_PATH:
+            df.to_csv(LEGACY_TICKETS_PATH, index=False)
+        try:
+            df.to_excel(TICKETS_EXCEL_PATH, index=False)
+        except ModuleNotFoundError as error:
+            if error.name != "openpyxl":
+                raise
+            self.excel_persistence_available = False
+
+    def _next_ticket_id(self) -> str:
+        numbers = []
+        for value in self.ticket_df.get("ticket_id", pd.Series(dtype=object)).astype(str):
+            match = re.fullmatch(r"INC-(\d+)", value.strip(), flags=re.IGNORECASE)
+            if match:
+                numbers.append(int(match.group(1)))
+        return f"INC-{max(numbers, default=1000) + 1:04d}"
+
+    def create_ticket(self, description: str, product_line: str = "General", ticket_date: Optional[str] = None) -> Dict[str, Any]:
+        cleaned_description = description.strip()
+        if not cleaned_description:
+            raise ValueError("A ticket description is required.")
+
+        ticket = {
+            "ticket_id": self._next_ticket_id(),
+            "date": ticket_date or date.today().isoformat(),
+            "product_line": product_line.strip() or "General",
+            "description": cleaned_description,
+            "true_severity": "",
+            "true_category": "",
+            "status": None,
+        }
+        ticket["category"] = self.triage_ticket(ticket)["category"]
+        self.ticket_df = pd.concat([self.ticket_df, pd.DataFrame([ticket])], ignore_index=True)
+        self._persist_ticket_data(self.ticket_df)
+        return ticket
 
     def update_ticket_status(self, ticket_id: str, status: str) -> None:
         df = self.ticket_df.copy()
@@ -111,7 +153,7 @@ class QualityWorkflow:
         status_value = str(status).strip().lower() if status is not None else None
         df.loc[df["ticket_id"] == ticket_id, "status"] = status_value
         self.ticket_df = df
-        self.ticket_df.to_csv(self.tickets_path, index=False)
+        self._persist_ticket_data(self.ticket_df)
 
     def get_metrics(self, status_filter: Optional[str] = None) -> Dict[str, float]:
         if self.ticket_df.empty:
@@ -139,7 +181,13 @@ class QualityWorkflow:
         correct = 0
         correct_severity = 0
         correct_category = 0
-        for _, row in self.ticket_df.iterrows():
+        labeled_rows = self.ticket_df[
+            self.ticket_df["true_severity"].notna()
+            & self.ticket_df["true_category"].notna()
+            & self.ticket_df["true_severity"].astype(str).str.strip().ne("")
+            & self.ticket_df["true_category"].astype(str).str.strip().ne("")
+        ]
+        for _, row in labeled_rows.iterrows():
             pred = self.triage_ticket(row.to_dict())
             severity_correct = pred["severity"] == str(row.get("true_severity", "")).strip()
             category_correct = pred["category"] == str(row.get("true_category", "")).strip()
@@ -152,9 +200,9 @@ class QualityWorkflow:
         return {
             "total_tickets": len(self.ticket_df),
             "open_tickets": open_tickets,
-            "triage_accuracy": round(correct / total * 100, 2) if total else 0.0,
-            "severity_accuracy": round(correct_severity / total * 100, 2) if total else 0.0,
-            "category_accuracy": round(correct_category / total * 100, 2) if total else 0.0,
+            "triage_accuracy": round(correct / len(labeled_rows) * 100, 2) if len(labeled_rows) else 0.0,
+            "severity_accuracy": round(correct_severity / len(labeled_rows) * 100, 2) if len(labeled_rows) else 0.0,
+            "category_accuracy": round(correct_category / len(labeled_rows) * 100, 2) if len(labeled_rows) else 0.0,
             "avg_time_to_draft_sec": avg_time,
             "tickets_processed": total,
         }

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Quality CAPA Review Dashboard
 
 A local Streamlit application for triaging quality incident tickets, retrieving relevant quality SOP excerpts, drafting CAPA recommendations, and recording human review decisions.
@@ -10,7 +9,10 @@ A local Streamlit application for triaging quality incident tickets, retrieving 
 - Generates a CAPA draft using a local text-to-text model when available.
 - Falls back to deterministic triage rules and a deterministic CAPA template when model generation is unavailable.
 - Supports approval and rejection workflows.
-- Persists ticket status back to the incident CSV.
+- Allows users to enter a new incident description in the UI.
+- Generates a unique ticket ID for new incidents and persists records to CSV and Excel.
+- Mirrors the ticket CSV to `input_docs/incident_tickets.csv` for convenient access.
+- Provides the generated CAPA as a downloadable Word document.
 - Displays severity accuracy and category accuracy across all tickets.
 - Filters the ticket queue by approval status and severity.
 - Deduplicates retrieved SOP context by source and excludes cross-reference-only sections.
@@ -69,7 +71,8 @@ The dashboard workflow is:
 3. Retrieve up to three unique SOP sources for the selected incident.
 4. Generate or fall back to a CAPA draft.
 5. Review, edit, approve, or reject the draft.
-6. Persist the status to `incident_tickets.csv`.
+6. Persist the ticket and status to `incident_tickets.csv` and `incident_tickets.xlsx`.
+7. Download the generated or approved CAPA as a Word document.
 
 ## Generate Sample Data
 
@@ -150,7 +153,3 @@ Refresh the application after retrieval changes. The current implementation excl
 - `quality_workflow.py` owns data loading, retrieval, triage, CAPA drafting, metrics, status persistence, and the LangGraph workflow.
 - The application writes status changes to the source CSV, so keep a backup if the data is important.
 - Do not commit model caches, virtual environments, or production ticket data to source control.
-=======
-# Quality-CAPA-Intelligence-Hub
-A local Streamlit application for triaging quality incident tickets, retrieving relevant quality SOP excerpts, drafting CAPA recommendations, and recording human review decisions.
->>>>>>> c4187c506f264721bd54d84483a780d993dc8ca0

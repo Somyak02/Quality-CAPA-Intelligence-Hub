@@ -1,7 +1,14 @@
 from __future__ import annotations
 
+from io import BytesIO
+
 import pandas as pd
 import streamlit as st
+
+try:
+    from docx import Document
+except ModuleNotFoundError:
+    Document = None
 
 from quality_workflow import QualityWorkflow
 
@@ -98,9 +105,49 @@ def persist_ticket(updated_ticket):
     refresh_queue()
 
 
+def build_capa_document(ticket_state) -> bytes:
+    if Document is None:
+        ticket = ticket_state["ticket"]
+        text = (
+            f"CAPA Document - {ticket['ticket_id']}\n\n"
+            f"Date: {ticket.get('date', '')}\n"
+            f"Product line: {ticket.get('product_line', 'General')}\n"
+            f"Severity: {ticket_state['severity']}\n"
+            f"Category: {ticket_state['category']}\n\n"
+            f"Incident Description\n{ticket.get('description', '')}\n\n"
+            f"CAPA Recommendation\n{ticket_state.get('final_output') or ticket_state['draft']}\n"
+        )
+        return text.encode("utf-8")
+
+    document = Document()
+    ticket = ticket_state["ticket"]
+    document.add_heading(f"CAPA Document - {ticket['ticket_id']}", level=1)
+    document.add_paragraph(f"Date: {ticket.get('date', '')}")
+    document.add_paragraph(f"Product line: {ticket.get('product_line', 'General')}")
+    document.add_paragraph(f"Severity: {ticket_state['severity']}")
+    document.add_paragraph(f"Category: {ticket_state['category']}")
+    document.add_heading("Incident Description", level=2)
+    document.add_paragraph(str(ticket.get("description", "")))
+    document.add_heading("CAPA Recommendation", level=2)
+    document.add_paragraph(ticket_state.get("final_output") or ticket_state["draft"])
+    document.add_heading("Relevant SOPs", level=2)
+    for source in sorted({item["source"] for item in ticket_state.get("retrieved_context", [])}):
+        document.add_paragraph(source, style="List Bullet")
+
+    buffer = BytesIO()
+    document.save(buffer)
+    return buffer.getvalue()
+
+
 refresh_queue()
 
 st.title("Quality Incident Queue")
+
+if not workflow.excel_persistence_available:
+    st.warning(
+        "Excel persistence is unavailable in the Python interpreter running Streamlit. "
+        "Install openpyxl there to update incident_tickets.xlsx."
+    )
 
 col1, col2, col3, col4, col5 = st.columns(5)
 metrics = workflow.get_metrics(status_filter=st.session_state.get("status_filter", "non_approved"))
@@ -112,6 +159,38 @@ col5.metric("Avg draft time", f"{metrics['avg_time_to_draft_sec']:.1f}s")
 st.caption(f"Evaluated tickets: {metrics.get('tickets_processed', 0)}")
 
 st.subheader("Incoming tickets")
+
+with st.expander("Create a ticket and generate a CAPA"):
+    with st.form("new_ticket_form"):
+        new_product_line = st.text_input("Product line", value="General")
+        new_description = st.text_area("Incident description", height=160)
+        create_ticket = st.form_submit_button("Create ticket and generate CAPA")
+
+    if create_ticket:
+        if not new_description.strip():
+            st.error("Enter an incident description before creating the ticket.")
+        else:
+            new_ticket = workflow.create_ticket(new_description, new_product_line)
+            new_state = workflow.process_ticket(new_ticket)
+            st.session_state["new_ticket_state"] = new_state
+            st.session_state["selected_ticket_id"] = new_ticket["ticket_id"]
+            st.success(f"Created {new_ticket['ticket_id']} and saved it to the CSV and Excel records.")
+
+    new_ticket_state = st.session_state.get("new_ticket_state")
+    if new_ticket_state:
+        st.write(f"Generated CAPA for {new_ticket_state['ticket']['ticket_id']}")
+        st.download_button(
+            "Download CAPA document",
+            data=build_capa_document(new_ticket_state),
+            file_name=f"CAPA_{new_ticket_state['ticket']['ticket_id']}.{ 'docx' if Document else 'txt' }",
+            mime=(
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                if Document
+                else "text/plain"
+            ),
+            key="new_ticket_capa_download",
+        )
+
 filter_status, filter_severity = st.columns(2)
 status_options = ["Non-approved only", "Approved only", "All tickets"]
 status_filter_value = st.session_state.get("status_filter", "non_approved")
@@ -184,4 +263,16 @@ if selected_ticket is not None:
     if selected_ticket["status"] in {"resolved", "approved"}:
         st.write("Final output:")
         st.code(selected_ticket["final_output"], language="text")
+
+    st.download_button(
+        "Download CAPA document",
+        data=build_capa_document(selected_ticket),
+        file_name=f"CAPA_{selected_ticket['ticket']['ticket_id']}.{ 'docx' if Document else 'txt' }",
+        mime=(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            if Document
+            else "text/plain"
+        ),
+        key=f"capa_download_{selected_ticket['ticket']['ticket_id']}",
+    )
 

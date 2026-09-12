@@ -39,3 +39,4 @@ INC-1037,2026-02-10,Wafer Fab,Supplier,New supplier onboarding skipped the requi
 INC-1038,2026-02-11,NAND,Testing,Test program version mismatch found between two test stations running supposedly identical test flows.,Medium,Testing Failure,
 INC-1039,2026-02-12,Packaging,Packaging Defect,ESD shielding bag material changed by packaging vendor without notifying quality team for requalification.,Medium,Packaging Defect,
 INC-1040,2026-02-13,DRAM,Non-Conformance,Scrap material was found improperly stored with production inventory instead of quarantine area.,Medium,Non-Conforming Material,
+INC-1041,2026-09-13,General,Equipment Calibration,Calibration drift found on Metrology Tool M-22 during routine check; measurements were off by 0.3 microns for the past 10 days.,,,
